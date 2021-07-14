@@ -1,0 +1,130 @@
+import pyttsx3 # install pyttsx3 
+import webbrowser
+import speech_recognition as sr #install speech recognition
+import datetime
+import smtplib
+import wikipedia # install wikipedia
+import os
+
+# you can install all mentioned module simply by using pip install modulename.
+
+engine = pyttsx3.init('sapi5')
+
+voices = engine.getProperty('voices')
+# first check availabe voice on your pc using print function.
+engine.setProperty('voice', voices[1].id)
+
+
+def speak(text):
+
+    engine.say(text)
+    engine.runAndWait()
+
+
+def Greetings():
+
+    hour = int(datetime.datetime.now().hour)
+
+    if hour>=0 and hour<12:
+      speak("Good Morning sir")
+
+
+    elif hour>=12 and hour<18:
+      speak("Good Afternoon sir")   
+
+
+    else:
+      speak("Good Evening sir")  
+
+      speak("My name is sophia. How can i help you??")
+
+
+def command():
+    #It takes audio command from users and then return string output
+    # please, install pyaudio module, sometimes pip install pyaudio also shows error in that case you may download it online.
+    r = sr.Recognizer()
+    with sr.Microphone() as source:
+        print("Listening to your voice")
+        r.pause_threshold = 1
+        # set thershold according to your choice
+        text = r.listen(source)
+
+    try:
+        print("Identifying....")    
+        ask = r.recognize_google(text, language='en-in')
+        print(f"User said: {ask}\n")
+
+    except Exception as e:
+        # print(e)    
+        print("say it again")  
+        return "None"
+    return ask
+
+def mail(whom,content):
+    # don't forget to allow less secure app in your gmail account,it is necessary.
+    # to allow less secured app go to your gmail console >> manage your google account >> security >> less secured apps.
+    server = smtplib.SMTP('smtp.gmail.com',587)
+    server.ehlo()
+    server.starttls()
+    # put your mail id instead of mailid@gmail.com and also your passworg in place of "password"
+    server.login('mailid@gmail.com', 'password')
+    server.sendmail('mailid@gmail.com',whom,content)
+    server.close()
+
+if __name__ =="__main__":
+
+    Greetings()
+    #if you want to run loop for infinite time use "while true"
+    if 1:
+        ask = command().lower()
+        
+        
+
+        if 'wikipedia' in ask:
+            speak('Searching...')
+            ask = ask.replace("wikipedia", "")
+            search = wikipedia.summary(ask, sentences= 2)
+            speak("Wikipedia mentions ")
+            print(search)
+            speak(search)
+ # you can search for any number of sentences - "sentences = any number you want"
+
+        elif 'who are you' in ask :
+            speak("i am sophia your desktop assistant")
+
+            
+        elif 'open youtube' in ask :
+            webbrowser.open("youtube.com") 
+
+
+        elif 'open google' in ask :
+            webbrowser.open("google.com") 
+
+
+        elif 'play movies' in ask :
+            movie_dir = 'D:\\movies'
+            #add your file address
+            picture = os.listdir(movie_dir)
+            print(picture)
+            os.startfile(os.path.join(movie_dir, picture[3]))
+
+        elif 'tell the time' in ask:
+            strTime = datetime.datetime.now().strftime("%H:%M:%S")    
+            speak(f"the curent time is {strTime}")
+
+        elif 'open code' in ask:
+            path = "C:\\Users\\hp\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Visual Studio Code"
+            # add your file address
+            os.startfile(path)
+
+        elif 'send mail to aniket' in ask :
+            try :
+                speak("tell me content")
+                content = command()
+                # you can mail anybody you want just drop his/her mail id here.
+                whom = "mentionid@gmail.com"
+                mail(whom,content)
+                speak("Email has been sent!")
+            except Exception as error :
+                print(error)
+                speak("Email can not be send")
